@@ -11,53 +11,70 @@ def main():
     parser.add_argument("mode", choices=["analyze", "update"], help="Mode of operation: analyze or update")
     parser.add_argument("path", nargs="?", default=os.getcwd(), help="Path to the project directory (default: current directory)")
     parser.add_argument("--key", help="OpenAI API Key (overrides OPENAI_API_KEY env var)")
+    parser.add_argument("-g", "--gitignore", action="store_true", help="Scan/Update only .gitignore")
+    parser.add_argument("-d", "--dockerignore", action="store_true", help="Scan/Update only .dockerignore")
     
     args = parser.parse_args()
 
-    # Load environment variables from .env file if it exists
-    load_dotenv()
-
-    # Set API key if provided via CLI
-    if args.key:
-        os.environ["OPENAI_API_KEY"] = args.key
+    # Determine files to ignore
+    files_to_ignore = []
+    if args.gitignore:
+        files_to_ignore.append('.gitignore')
+    if args.dockerignore:
+        files_to_ignore.append('.dockerignore')
     
-    if not os.getenv("OPENAI_API_KEY"):
-        print("Error: OPENAI_API_KEY is not set. Please set it in .env or pass it via --key.")
-        sys.exit(1)
+    # Default to both if neither is specified
+    if not files_to_ignore:
+        files_to_ignore = ['.gitignore', '.dockerignore']
 
-    directory_path = args.path
-    
+    # Determine output filename
+    if len(files_to_ignore) == 2:
+        output_file = f"{args.path}/project_root_artifact_review.md"
+    elif '.gitignore' in files_to_ignore:
+        output_file = f"{args.path}/project_root_artifact_review_g.md"
+    else:
+        output_file = f"{args.path}/project_root_artifact_review_d.md"
+
+    # Handle API Key
+    api_key = args.key or os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("Error: OpenAI API Key is required. Set OPENAI_API_KEY env var or pass --key")
+        return
+
+    os.environ["OPENAI_API_KEY"] = api_key
+
+    # Initialize Agents
+    analyzer = FileAnalyzerAgent()
+    updater = ConfigUpdaterAgent()
+
     if args.mode == "analyze":
-        print(f"Starting analysis on {directory_path}...")
-        analyzer_agent = FileAnalyzerAgent()
-        task = create_analysis_task(analyzer_agent, directory_path)
+        print(f"Analyzing {args.path} for {', '.join(files_to_ignore)}...")
+        task = create_analysis_task(analyzer, args.path, files_to_ignore, output_file)
         crew = Crew(
-            agents=[analyzer_agent],
+            agents=[analyzer],
             tasks=[task],
             verbose=True,
             process=Process.sequential
         )
         result = crew.kickoff()
-        print("Analysis complete. Check project_root_artifact_review.md")
+        print(f"\nAnalysis complete. Check {output_file}")
 
     elif args.mode == "update":
-        print(f"Starting update based on review in {directory_path}...")
-        updater_agent = ConfigUpdaterAgent()
-        review_file_path = os.path.join(directory_path, "project_root_artifact_review.md")
-        
+        review_file_path = os.path.join(args.path, output_file)
         if not os.path.exists(review_file_path):
-            print(f"Error: Review file not found at {review_file_path}. Run 'analyze' first.")
-            sys.exit(1)
-            
-        task = create_update_task(updater_agent, review_file_path)
+             print(f"Error: Review file not found at {review_file_path}. Run 'analyze' first.")
+             return
+
+        print(f"Updating configuration in {args.path} based on {output_file}...")
+        task = create_update_task(updater, review_file_path, files_to_ignore)
         crew = Crew(
-            agents=[updater_agent],
+            agents=[updater],
             tasks=[task],
             verbose=True,
             process=Process.sequential
         )
         result = crew.kickoff()
-        print("Update complete.")
+        print("\nUpdate complete.")
 
 if __name__ == "__main__":
     main()

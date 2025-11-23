@@ -22,6 +22,24 @@ dependencies = [
     "crewai-tools"
 ]
 
+# below are optional dependencies for development
+# install with pip install -e .[dev] (installs pytest, pytest-cov, pytest-mock along with the main dependencies)
+# can be omitted for production using pip install -e . (without the [dev])
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "pytest-mock"
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov=src --cov-report=term-missing"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.coverage.run]
+source = ["src"]
+
 [project.scripts]
 ignore-manager = "ignore_manager.cli:main"
 
