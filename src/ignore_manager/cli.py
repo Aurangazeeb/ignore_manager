@@ -3,8 +3,8 @@ import sys
 import argparse
 from dotenv import load_dotenv
 from crewai import Crew, Process
-from crewai_ignore_manager.agents import FileAnalyzerAgent, ConfigUpdaterAgent
-from crewai_ignore_manager.tasks import create_analysis_task, create_update_task
+from ignore_manager.agents import FileAnalyzerAgent, ConfigUpdaterAgent
+from ignore_manager.tasks import create_analysis_task, create_update_task
 
 def main():
     parser = argparse.ArgumentParser(description="CrewAI File Management Automation Tool")
@@ -25,7 +25,7 @@ def main():
         print("Error: OPENAI_API_KEY is not set. Please set it in .env or pass it via --key.")
         sys.exit(1)
 
-    directory_path = os.path.abspath(args.path)
+    directory_path = args.path
     
     if args.mode == "analyze":
         print(f"Starting analysis on {directory_path}...")

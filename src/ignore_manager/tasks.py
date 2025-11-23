@@ -1,5 +1,5 @@
 from crewai import Task
-from crewai_ignore_manager.agents import FileAnalyzerAgent, ConfigUpdaterAgent
+from ignore_manager.agents import FileAnalyzerAgent, ConfigUpdaterAgent
 
 def create_analysis_task(agent, directory_path):
     return Task(
@@ -16,12 +16,14 @@ def create_analysis_task(agent, directory_path):
         # Project Root Artifact Review
         
         ## Recommended .gitignore rules
-        - [ ] rule1 # justification (New/Existing)
-        - [ ] rule2 # justification (New/Existing)
+        1. rule1 : justification - (New/Existing)
+        2. rule2 : justification - (New/Existing)
         
         ## Recommended .dockerignore rules
-        - [ ] rule1 # justification (New/Existing)
-        - [ ] rule2 # justification (New/Existing)
+        1. rule1 : justification - (New/Existing)
+        2. rule2 : justification - (New/Existing)
+
+        Note : DO NOT enclose file content in ```
         """,
         expected_output="A markdown file named 'project_root_artifact_review.md' containing recommended ignore rules.",
         agent=agent,

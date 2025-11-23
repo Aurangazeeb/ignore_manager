@@ -1,5 +1,5 @@
 from crewai import Agent
-from crewai_ignore_manager.tools import DirectoryScanner, FileUpdater, ReviewReader, ExistingConfigReader
+from ignore_manager.tools import DirectoryScanner, FileUpdater, ReviewReader, ExistingConfigReader
 
 class FileAnalyzerAgent(Agent):
     def __init__(self):

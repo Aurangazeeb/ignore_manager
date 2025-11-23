@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "crewai_ignore_manager"
+name = "ignore_manager"
 version = "0.1.0"
 description = "A CrewAI tool to automate .gitignore and .dockerignore management"
 authors = [
@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [project.scripts]
-ignore-manager = "crewai_ignore_manager.cli:main"
+ignore-manager = "ignore_manager.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"] 
