@@ -13,3 +13,5 @@ __pycache__/
 dist/
 *.pyc
 
+# ignore .env file anywhere in the repository
+.env
